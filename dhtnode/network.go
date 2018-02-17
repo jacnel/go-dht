@@ -66,6 +66,7 @@ func (network *Network) Send(conn *net.Conn, message string) {
 		fmt.Println(err)
 	}
 	check(err)
+	fmt.Println("HERE!")
 }
 
 func (network *Network) LetsGoOffNoding(opcode, key, value int) (int, int) {
