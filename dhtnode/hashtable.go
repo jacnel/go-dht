@@ -19,10 +19,10 @@ func (ls *HashTable) Init() {
 }
 
 func (ls *HashTable) Put(key, value int) (int, int) {
-	//ls.locks[key % numLocks].Lock()
-	//defer ls.locks[key % numLocks].Unlock()
-	ls.lock.Lock()
-	defer ls.lock.Unlock()
+	ls.locks[key % numLocks].Lock()
+	defer ls.locks[key % numLocks].Unlock()
+	//ls.lock.Lock()
+	//defer ls.lock.Unlock()
 	v, exists := ls.data[key]
 	if exists {
 		return v, 1
@@ -33,10 +33,10 @@ func (ls *HashTable) Put(key, value int) (int, int) {
 }
 
 func (ls *HashTable) Get(key int) (int, int) {
-	//ls.locks[key % numLocks].Lock()
-	//defer ls.locks[key % numLocks].Unlock()
-	ls.lock.Lock()
-	defer ls.lock.Unlock()
+	ls.locks[key % numLocks].Lock()
+	defer ls.locks[key % numLocks].Unlock()
+	//ls.lock.Lock()
+	//defer ls.lock.Unlock()
 	value, exists := ls.data[key]
 	if exists {
 		return value, 2
@@ -46,8 +46,8 @@ func (ls *HashTable) Get(key int) (int, int) {
 }
 
 func (ls *HashTable) String() string {
-	ls.lock.Lock()
-	defer ls.lock.Unlock()
+	//ls.lock.Lock()
+	//defer ls.lock.Unlock()
 	var s string
 	for k,v := range ls.data {
 		s += "( " + strconv.Itoa(k) + " , " + strconv.Itoa(v) + ")\n"
@@ -56,8 +56,8 @@ func (ls *HashTable) String() string {
 }
 
 func (ls *HashTable) Clear() {
-	ls.lock.Lock()
-	defer ls.lock.Unlock()
+	//ls.lock.Lock()
+	//defer ls.lock.Unlock()
 	ls.data = make(map[int]int)
 }
 

@@ -47,7 +47,7 @@ func doRandomWork(i int, ch chan int) {
 
 func TestClient(t *testing.T) {
      ch := make(chan int)
-     numClients := 1
+     numClients := 20
      for i := 0; i < numClients; i++ {
           fmt.Println("Spawing new client")
           go doRandomWork(i, ch)
