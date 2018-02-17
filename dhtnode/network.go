@@ -143,6 +143,7 @@ func getMessage(conn *net.Conn) string {
 		n int
 	)
 	for n, err = (*conn).Read(data); n < 1; {
+		fmt.Println(n, err)
 	}
 	check(err)
 	if(err == io.EOF) {
