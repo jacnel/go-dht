@@ -76,6 +76,8 @@ func (node *DHTNode) handleMessages(conn *net.Conn) {
 			fmt.Println("Ignoring message")
 		}
 
+		fmt.Println(ok, strconv.Itoa(key),strconv.Itoa(value))
+
 		switch ok {
 		case 0:
 			node.network.Send(conn, "FAIL;"+strconv.Itoa(key)+";"+strconv.Itoa(value)+"\n")

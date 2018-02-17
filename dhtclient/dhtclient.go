@@ -23,12 +23,12 @@ func (client *DHTClient) Init(addr string) {
 func (client *DHTClient) Get(key int) (int, int) {
 	_, err := client.dhtConn.Write([]byte("1;"+strconv.Itoa(key)+";\n"))
 	if err != nil {
-		panic("OH MAH GAWD!")
+		panic(err)
 	}
 	data := make([]byte, 1024)
 	n, err := client.dhtConn.Read(data)
 	if err != nil {
-		panic("ERRR MERR GERRRD!")
+		panic(err)
 	}
 	return parseNodeMessage(string(data[:n]))
 }
@@ -36,12 +36,12 @@ func (client *DHTClient) Get(key int) (int, int) {
 func (client *DHTClient) Put(key, value int) (int, int) {
 	_, err := client.dhtConn.Write([]byte("2;"+strconv.Itoa(key)+";"+strconv.Itoa(value)+"\n"))
 	if err != nil {
-		panic("OH MAH GAWD!")
+		panic(err)
 	}
 	data := make([]byte, 1024)
 	n, err := client.dhtConn.Read(data)
 	if err != nil {
-		panic("ERRR MERR GERRRD!")
+		panic(err)
 	}
 	return parseNodeMessage(string(data[:n]))
 }
