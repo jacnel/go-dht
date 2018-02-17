@@ -62,8 +62,9 @@ func (network *Network) Send(conn *net.Conn, message string) {
 		n int
 	)
 	for n, err = (*conn).Write(data); n < 1; {
-		fmt.Println(n, err, message)
+		fmt.Println(".")
 	}
+	fmt.Println(n, err, message)
 	check(err)
 	fmt.Println("HERE!")
 }
