@@ -61,9 +61,7 @@ func (network *Network) Send(conn *net.Conn, message string) {
 		err error
 		n int
 	)
-	for n, err = (*conn).Write(data); n < 1; {
-		fmt.Println(".")
-	}
+	n, err = (*conn).Write(data)
 	fmt.Println(n, err, message)
 	check(err)
 	fmt.Println("HERE!")
@@ -142,9 +140,7 @@ func getMessage(conn *net.Conn) string {
 		err error
 		n int
 	)
-	for n, err = (*conn).Read(data); n < 1; {
-		fmt.Println(n, err)
-	}
+	n, err = (*conn).Read(data)
 	check(err)
 	if(err == io.EOF) {
 		return "-1;0;0"

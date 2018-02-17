@@ -9,25 +9,25 @@ import (
 
 type DHTClient struct {
 	targetAddr string
-	dhtConn    net.Conn
+	dhtConn    *net.Conn
 }
 
 func (client *DHTClient) Init(addr string) {
 	client.targetAddr = addr
-	var err error
-	client.dhtConn, err = net.Dial("tcp", client.targetAddr)
+	conn, err := net.Dial("tcp", client.targetAddr)
+	client.dhtConn = &conn
 	if(err != nil) {
 		panic("Could not connect to " + client.targetAddr)
 	}
 }
 
 func (client *DHTClient) Get(key int) (int, int) {
-	_, err := client.dhtConn.Write([]byte("1;"+strconv.Itoa(key)+";\n"))
+	_, err := (*client.dhtConn).Write([]byte("1;"+strconv.Itoa(key)+";\n"))
 	if err != nil {
 		panic(err)
 	}
 	data := make([]byte, 1024)
-	n, err := client.dhtConn.Read(data)
+	n, err := (*client.dhtConn).Read(data)
 	fmt.Println(string(data[:n]))
 	if err != nil {
 		panic(err)
@@ -36,12 +36,14 @@ func (client *DHTClient) Get(key int) (int, int) {
 }
 
 func (client *DHTClient) Put(key, value int) (int, int) {
-	_, err := client.dhtConn.Write([]byte("2;"+strconv.Itoa(key)+";"+strconv.Itoa(value)+"\n"))
+	n, err := (*client.dhtConn).Write([]byte("2;"+strconv.Itoa(key)+";"+strconv.Itoa(value)+"\n"))
+	fmt.Println(n,err)
 	if err != nil {
 		panic(err)
 	}
 	data := make([]byte, 1024)
-	n, err := client.dhtConn.Read(data)
+	fmt.Println("Here...?")
+	n, err = (*client.dhtConn).Read(data)
 	fmt.Println(string(data[:n]))
 	if err != nil {
 		panic(err)
@@ -50,7 +52,7 @@ func (client *DHTClient) Put(key, value int) (int, int) {
 }
 
 func (client *DHTClient) Close() {
-	client.dhtConn.Close()
+	(*client.dhtConn).Close()
 }
 
 func parseNodeMessage(s string) (int, int) {
