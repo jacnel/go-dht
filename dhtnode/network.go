@@ -56,14 +56,13 @@ func (network *Network) KeyInRange(key int) bool {
 }
 
 func (network *Network) Send(conn *net.Conn, message string) {
-	fmt.Println(message)
 	data := []byte(message)
 	var(
 		err error
 		n int
 	)
 	for n, err = (*conn).Write(data); n < 1; {
-		fmt.Println(err)
+		fmt.Println(n, err, message)
 	}
 	check(err)
 	fmt.Println("HERE!")
