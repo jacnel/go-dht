@@ -5,10 +5,11 @@ import (
 	"strconv"
 )
 
-const numLocks = 50
+const numLocks = 1
 
 type HashTable struct{
 	data map[int]int
+	lock sync.Mutex
 	locks []sync.Mutex
 }
 
@@ -18,8 +19,10 @@ func (ls *HashTable) Init() {
 }
 
 func (ls *HashTable) Put(key, value int) (int, int) {
-	ls.locks[key % numLocks].Lock()
-	defer ls.locks[key % numLocks].Unlock()
+	//ls.locks[key % numLocks].Lock()
+	//defer ls.locks[key % numLocks].Unlock()
+	ls.lock.Lock()
+	defer ls.lock.Unlock()
 	v, exists := ls.data[key]
 	if exists {
 		return v, 1
@@ -30,8 +33,10 @@ func (ls *HashTable) Put(key, value int) (int, int) {
 }
 
 func (ls *HashTable) Get(key int) (int, int) {
-	ls.locks[key % numLocks].Lock()
-	defer ls.locks[key % numLocks].Unlock()
+	//ls.locks[key % numLocks].Lock()
+	//defer ls.locks[key % numLocks].Unlock()
+	ls.lock.Lock()
+	defer ls.lock.Unlock()
 	value, exists := ls.data[key]
 	if exists {
 		return value, 2

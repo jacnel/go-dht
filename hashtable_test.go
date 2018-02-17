@@ -1,34 +1,35 @@
 package dht
 
-
 import (
      "testing"
      "dht/dhtclient"
-     "dht/dhtnode"
-     "strconv"
      "fmt"
      rand2 "math/rand"
 )
 
-func TestNode1(t *testing.T) {
-     n := dhtnode.DHTNode{}
-     n.StartNode(8403)
-}
-
-func TestNode2(t *testing.T) {
-     n := dhtnode.DHTNode{}
-     n.StartNode(8404)
-}
-
-func TestNode3(t *testing.T) {
-     n := dhtnode.DHTNode{}
-     n.StartNode(8405)
-}
+//func TestNode1(t *testing.T) {
+//     n := dhtnode.DHTNode{}
+//     n.StartNode(8403)
+//}
+//
+//func TestNode2(t *testing.T) {
+//     n := dhtnode.DHTNode{}
+//     n.StartNode(8404)
+//}
+//
+//func TestNode3(t *testing.T) {
+//     n := dhtnode.DHTNode{}
+//     n.StartNode(8405)
+//}
 
 func doRandomWork(i int, ch chan int) {
      c := dhtclient.DHTClient{}
      defer c.Close()
-     c.Init("128.180.110.83:840"+strconv.Itoa(i % 3 + 3))
+     if i % 1 != 0 {
+          //c.Init("128.180.110.83:8403")
+     } else {
+          c.Init("128.180.145.134:8403")
+     }
      puts := 0
      for j := 0; j < 100; j++ {
           r := rand2.Intn(100)
@@ -46,7 +47,7 @@ func doRandomWork(i int, ch chan int) {
 
 func TestClient(t *testing.T) {
      ch := make(chan int)
-     numClients := 3
+     numClients := 2
      for i := 0; i < numClients; i++ {
           fmt.Println("Spawing new client")
           go doRandomWork(i, ch)
@@ -57,16 +58,10 @@ func TestClient(t *testing.T) {
           puts = append(puts, <-ch)
      }
      fmt.Println(puts)
-}
-
-func doSameWork(i int, ch chan int) {
-     c := dhtclient.DHTClient{}
-     defer c.Close()
-     c.Init("128.180.110.83:840"+strconv.Itoa(i % 3 + 3))
-     puts := 0
-     for j := 0; j < 1000; j++ {
-
+     totalPuts := 0
+     for i := range puts {
+          totalPuts += puts[i]
      }
-     ch <- puts
+     fmt.Println(totalPuts)
 }
 
