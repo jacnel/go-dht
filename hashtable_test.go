@@ -24,8 +24,8 @@ import (
 
 func doRandomWork(i int, ch chan int) {
      c := dhtclient.DHTClient{}
-     defer c.Close()
-     if i % 1 == 0 {
+     //defer c.Close()
+     if i % 1 != 0 {
           c.Init("128.180.110.83:8403")
      } else {
           c.Init("128.180.145.134:8403")
