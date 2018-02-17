@@ -73,6 +73,7 @@ func (node *DHTNode) handleMessages(conn *net.Conn) {
 			fmt.Println("TABLE CLEARED!")
 			break
 		default:
+			fmt.Println("default switch handle....",opcode)
 			node.network.Send(conn, "IGNORED\n")
 			fmt.Println("Ignoring message")
 		}
