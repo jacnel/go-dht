@@ -141,7 +141,6 @@ func getMessage(conn *net.Conn) string {
 		n int
 	)
 	n, err = (*conn).Read(data)
-	check(err)
 	if(err == io.EOF) {
 		return "-1;0;0"
 	}
