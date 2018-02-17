@@ -62,6 +62,7 @@ func (network *Network) Send(conn *net.Conn, message string) {
 		n int
 	)
 	for n, err = (*conn).Write(data); n < 1; {
+		fmt.Println(err)
 	}
 	check(err)
 }
