@@ -46,6 +46,8 @@ func (ls *HashTable) Get(key int) (int, int) {
 }
 
 func (ls *HashTable) String() string {
+	ls.lock.Lock()
+	defer ls.lock.Unlock()
 	var s string
 	for k,v := range ls.data {
 		s += "( " + strconv.Itoa(k) + " , " + strconv.Itoa(v) + ")\n"
@@ -54,9 +56,13 @@ func (ls *HashTable) String() string {
 }
 
 func (ls *HashTable) Clear() {
+	ls.lock.Lock()
+	defer ls.lock.Unlock()
 	ls.data = make(map[int]int)
 }
 
 func (ls *HashTable) Size() int {
+	ls.lock.Lock()
+	defer ls.lock.Unlock()
 	return len(ls.data)
 }
