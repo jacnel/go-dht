@@ -7,20 +7,20 @@ import (
 )
 
 type DHTNode struct {
-	hashTable LocalStore
+	hashTable HashTable
 	network   Network
 }
 
-func (node DHTNode) StartNode(port int) {
-	node.init(port)
+func (node DHTNode) StartNode(port int, configFilepath string) {
+	node.init(port, configFilepath)
 	node.Listen()
 }
 
-func (node *DHTNode) init(port int) {
-	node.hashTable = LocalStore{}
+func (node *DHTNode) init(port int, configFilepath string) {
+	node.hashTable = HashTable{}
 	node.hashTable.Init()
 	node.network = Network{}
-	node.network.Init(port)
+	node.network.Init(port, configFilepath)
 }
 
 func (node *DHTNode) Listen() {
@@ -63,8 +63,12 @@ func (node *DHTNode) handleMessages(conn *net.Conn) {
 			fmt.Println(node.hashTable.String())
 			break
 		case 4:
+			node.network.Send(conn, strconv.Itoa(node.hashTable.Size()) + "\n")
+			fmt.Println("Size: ", node.hashTable.Size())
+			break
+		case 5:
 			node.hashTable.Clear()
-			node.network.Send(conn, "OK;;")
+			ok = 2
 			fmt.Println("TABLE CLEARED!")
 			break
 		default:

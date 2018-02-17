@@ -5,18 +5,21 @@ import (
 	"strconv"
 )
 
-type LocalStore struct{
+const numLocks = 50
+
+type HashTable struct{
 	data map[int]int
-	lock sync.Mutex
+	locks []sync.Mutex
 }
 
-func (ls *LocalStore) Init() {
+func (ls *HashTable) Init() {
 	ls.data = make(map[int]int)
+	ls.locks = make([]sync.Mutex, numLocks)
 }
 
-func (ls *LocalStore) Put(key, value int) (int, int) {
-	ls.lock.Lock()
-	defer ls.lock.Unlock()
+func (ls *HashTable) Put(key, value int) (int, int) {
+	ls.locks[key % numLocks].Lock()
+	defer ls.locks[key % numLocks].Unlock()
 	v, exists := ls.data[key]
 	if exists {
 		return v, 1
@@ -26,9 +29,9 @@ func (ls *LocalStore) Put(key, value int) (int, int) {
 	}
 }
 
-func (ls *LocalStore) Get(key int) (int, int) {
-	ls.lock.Lock()
-	defer ls.lock.Unlock()
+func (ls *HashTable) Get(key int) (int, int) {
+	ls.locks[key % numLocks].Lock()
+	defer ls.locks[key % numLocks].Unlock()
 	value, exists := ls.data[key]
 	if exists {
 		return value, 2
@@ -37,7 +40,7 @@ func (ls *LocalStore) Get(key int) (int, int) {
 	}
 }
 
-func (ls *LocalStore) String() string {
+func (ls *HashTable) String() string {
 	var s string
 	for k,v := range ls.data {
 		s += "( " + strconv.Itoa(k) + " , " + strconv.Itoa(v) + ")\n"
@@ -45,6 +48,10 @@ func (ls *LocalStore) String() string {
 	return s
 }
 
-func (ls *LocalStore) Clear() {
+func (ls *HashTable) Clear() {
 	ls.data = make(map[int]int)
+}
+
+func (ls *HashTable) Size() int {
+	return len(ls.data)
 }
