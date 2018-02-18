@@ -69,9 +69,10 @@ func (network *Network) LetsGoOffNoding(opcode, key, value int) (int, int) {
 		fmt.Println(err.Error())
 		if strings.Compare(err.Error(), "dial tcp " + targetAddr + ": connect: can't assign requested address") == 0 {
 			conn, err = net.Dial("tcp", targetAddr)
+		} else {
+			check(err)
 		}
 	}
-	check(err)
 	message := strconv.Itoa(opcode)+";"+strconv.Itoa(key)+";"+strconv.Itoa(value)
 	_, err = conn.Write([]byte(message))
 	check(err)
