@@ -45,35 +45,35 @@ func (table *HashTable) Get(key int) (int, int) {
 }
 
 func (table *HashTable) String() string {
-	for _, l := range table.locks {
-		l.Lock()
+	for i := range table.locks {
+		table.locks[i].Lock()
 	}
 	var s string
 	for k,v := range table.data {
 		s += "( " + strconv.Itoa(k) + " , " + strconv.Itoa(v) + ")\n"
 	}
-	for _, l := range table.locks {
-		l.Unlock()
+	for i := range table.locks {
+		table.locks[i].Unlock()
 	}
 	return s
 }
 
 func (table *HashTable) Clear() {
-	for _, l := range table.locks {
-		l.Lock()
+	for i := range table.locks {
+		table.locks[i].Lock()
 	}
 	table.data = make([]int, keyRange)
 	for i := range table.data {
 		table.data[i] = 1<<32
 	}
-	for _, l := range table.locks {
-		l.Unlock()
+	for i := range table.locks {
+		table.locks[i].Unlock()
 	}
 }
 
 func (table *HashTable) Size() int {
-	for _, l := range table.locks {
-		l.Lock()
+	for i := range table.locks {
+		table.locks[i].Lock()
 	}
 	size := 0
 	for _, v := range table.data {
@@ -81,8 +81,8 @@ func (table *HashTable) Size() int {
 			size++
 		}
 	}
-	for _, l := range table.locks {
-		l.Unlock()
+	for i := range table.locks {
+		table.locks[i].Unlock()
 	}
 	return size
 }
