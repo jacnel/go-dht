@@ -66,6 +66,7 @@ func (network *Network) LetsGoOffNoding(opcode, key, value int) (int, int) {
 	// set up connection with target node and send info
 	conn, err := net.Dial("tcp", targetAddr)
 	if err != nil {
+		fmt.Println(err.Error())
 		for strings.Compare(err.Error(), "connect: can't assign requested address") == 0 {
 			conn, err = net.Dial("tcp", targetAddr)
 		}
