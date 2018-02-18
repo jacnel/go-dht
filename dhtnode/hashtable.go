@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-const numLocks = 1
+const numLocks = 4096
 
 type HashTable struct{
 	data map[int]int
