@@ -62,7 +62,7 @@ func (network *Network) Send(conn *net.Conn, message string) {
 		n int
 	)
 	n, err = (*conn).Write(data)
-	fmt.Println(n, err, message)
+	fmt.Println(n, err, message, (*conn).LocalAddr(), (*conn).RemoteAddr())
 	check(err)
 	fmt.Println("HERE!")
 }
