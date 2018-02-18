@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	dhtclient "dht/dhtclient"
+	"dht/dhtclient"
 	rand2 "math/rand"
 	"os"
 	"strconv"
@@ -61,12 +61,16 @@ func doRandomWork(i, numOps, keyRange int, opsChan, putsChan chan int, runtimeCh
 }
 
 func main() {
-	if len(os.Args) != 4 {
+	if len(os.Args) < 4 {
 		panic("Enter a number of clients to spin up, the number of operations per client and the key range.")
 	}
 	numClients,_ := strconv.Atoi(os.Args[1])
 	numOps,_ := strconv.Atoi(os.Args[2])
 	keyRange, _ := strconv.Atoi(os.Args[3])
+	targetNode := -1
+	if len(os.Args) > 4 {
+		targetNode,_ = strconv.Atoi(os.Args[4])
+	}
 
 	putsChan := make(chan int, numClients)
 	opsChan  := make(chan int, numClients)
@@ -75,34 +79,40 @@ func main() {
 	// Start clients
 	fmt.Println("Spawning new clients")
 	for i := 0; i < numClients; i++ {
-		go doRandomWork(i, numOps, keyRange, opsChan, putsChan, runtimeChan)
+		if targetNode >= 0 {
+			go doRandomWork(targetNode, numOps, keyRange, opsChan, putsChan, runtimeChan)
+		} else {
+			go doRandomWork(i, numOps, keyRange, opsChan, putsChan, runtimeChan)
+		}
 	}
 	fmt.Println("Done")
 
 	// Calculate total successful ops
 	totalOps := 0
+	ops := make([]int, 0)
 	for i := 0; i < numClients; i++ {
-		totalOps += <-opsChan
+		o := <-opsChan
+		ops = append(ops, o)
+		totalOps += o
 	}
+	fmt.Printf("Total operations: %dops\n", totalOps)
 
 	// Calculate total runtime
-	totalRuntime := 0.0
 	runtimes := make([]float64, 0)
+	throughput := 0.0
 	for i := 0; i < numClients; i++ {
 		rt := <-runtimeChan
 		runtimes = append(runtimes, rt)
-		totalRuntime += rt
+		throughput += float64(ops[i]) / rt * 1000
 	}
+	throughput /= float64(numClients)
+	fmt.Printf("Average throughput: %4.2fops\n", throughput)
 
-	// Calculate throughput and latency
-	throughput := float64(totalOps) / totalRuntime * 1000
-	fmt.Printf("Run throughput: %4.2fops\n", throughput)
 	latency := 0.0
 	for i := 0; i < numClients; i++ {
-		latency += runtimes[i]
+		latency += runtimes[i] / float64(ops[i])
 	}
 	latency /= float64(numClients)
-	latency /= float64(totalOps)
 	fmt.Printf("Average latency %4.2fms\n", latency)
 
 	// Sanity check
@@ -118,6 +128,7 @@ func main() {
 		fmt.Printf("totalPuts(%d) == totalSize(%d) : [PASSED]\n", totalPuts, totalSize)
 	}
 }
+
 func getTotalSize() int {
 	c := dhtclient.DHTClient{}
 	totalSize := 0
