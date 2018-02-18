@@ -48,7 +48,6 @@ func (network *Network) Receive(conn net.Conn) (int, int, int){
 
 func (network *Network) KeyInRange(key int) bool {
 	targetNode := network.hashKey(key)
-	fmt.Println("Target DHTNode -> ", targetNode)
 	if targetNode == network.myNodeID {
 		return true
 	}
