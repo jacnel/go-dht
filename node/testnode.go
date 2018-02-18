@@ -17,6 +17,9 @@ func doRandomWork(i, numOps int, ch chan int) {
 	}
 	puts := 0
 	for j := 0; j < numOps; j++ {
+		if j % 10 == 0 {
+			fmt.Println("client:", i, "j:", j, "puts:", puts)
+		}
 		r := rand2.Intn(100)
 		if r < 40 {
 			_, ok := c.Put(r, i)
@@ -38,11 +41,11 @@ func main() {
 	numOps,_ := strconv.Atoi(os.Args[2])
 
 	ch := make(chan int)
+	fmt.Println("Spawning new clients")
 	for i := 0; i < numClients; i++ {
-		fmt.Println("Spawning new client")
 		go doRandomWork(i, numOps, ch)
-		//go doSameWork(i, ch)
 	}
+	fmt.Println("Done")
 	var puts []int
 	for i := 0; i < numClients; i++ {
 		puts = append(puts, <-ch)
