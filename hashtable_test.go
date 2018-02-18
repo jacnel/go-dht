@@ -5,12 +5,13 @@ import (
      "dht/dhtclient"
      "fmt"
      rand2 "math/rand"
+     "dht/dhtnode"
 )
 
-//func TestNode1(t *testing.T) {
-//     n := dhtnode.DHTNode{}
-//     n.StartNode(8403)
-//}
+func TestNode1(t *testing.T) {
+     n := dhtnode.DHTNode{}
+     n.StartNode(8403, "../node/config.json")
+}
 //
 //func TestNode2(t *testing.T) {
 //     n := dhtnode.DHTNode{}

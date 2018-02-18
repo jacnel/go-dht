@@ -36,7 +36,7 @@ func (network *Network) Accept() {
 	if err != nil {
 		fmt.Println("Failed to handle incoming connection...")
 	} else {
-		fmt.Println("Connection established...")
+		fmt.Println("Connection established...", conn)
 	}
 	network.conn = conn
 }
@@ -139,7 +139,7 @@ func (network *Network) getMessage() string {
 	n, err = network.conn.Read(data)
 	if(err == io.EOF) {
 		return "-1;0;0"
-	} else {
+	} else if err != nil {
 		check(err)
 	}
 	return string(data[:n])
