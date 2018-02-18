@@ -4,7 +4,6 @@ import (
 	"net"
 	"strconv"
 	"strings"
-	"fmt"
 	"io"
 )
 
@@ -28,9 +27,7 @@ func (client *DHTClient) Get(key int) (int, int) {
 		panic(err)
 	}
 	data := make([]byte, 1024)
-	fmt.Println((*client.dhtConn).LocalAddr(), (*client.dhtConn).RemoteAddr())
 	n, err := (*client.dhtConn).Read(data)
-	fmt.Println(string(data[:n]))
 	if err != nil {
 		if err == io.EOF {
 			return 0, 0
@@ -41,14 +38,11 @@ func (client *DHTClient) Get(key int) (int, int) {
 
 func (client *DHTClient) Put(key, value int) (int, int) {
 	n, err := (*client.dhtConn).Write([]byte("2;"+strconv.Itoa(key)+";"+strconv.Itoa(value)+"\n"))
-	fmt.Println(n,err)
 	if err != nil {
 		panic(err)
 	}
 	data := make([]byte, 1024)
-	fmt.Println((*client.dhtConn).LocalAddr(), (*client.dhtConn).RemoteAddr())
 	n, err = (*client.dhtConn).Read(data)
-	fmt.Println("data", string(data[:n]))
 	if err != nil {
 		if err == io.EOF {
 			return 0, 0

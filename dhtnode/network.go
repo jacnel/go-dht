@@ -33,9 +33,9 @@ func (network *Network) Listen() {
 func (network *Network) Accept() net.Conn{
 	conn, err := network.listener.Accept()
 	if err != nil {
-		fmt.Println("Failed to handle incoming connection...")
+		check(err)
 	} else {
-		fmt.Println("Connection established...", conn)
+		//fmt.Println("Connection established...", conn)
 	}
 	return conn
 }
@@ -78,7 +78,6 @@ func (network *Network) LetsGoOffNoding(opcode, key, value int) (int, int) {
 		check(err)
 	}
 	conn.Close()
-	fmt.Println("HERE")
 	return parseNodeMessage(string(data[:n]))
 }
 func (network *Network) Close(conn net.Conn) {

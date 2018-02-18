@@ -24,8 +24,6 @@ func (table *HashTable) Init() {
 func (table *HashTable) Put(key, value int) (int, int) {
 	table.locks[key % numLocks].Lock()
 	defer table.locks[key % numLocks].Unlock()
-	//table.lock.Lock()
-	//defer table.lock.Unlock()
 	v := table.data[key]
 	if v != 1<<32 {
 		return v, 1
@@ -38,8 +36,6 @@ func (table *HashTable) Put(key, value int) (int, int) {
 func (table *HashTable) Get(key int) (int, int) {
 	table.locks[key % numLocks].Lock()
 	defer table.locks[key % numLocks].Unlock()
-	//table.lock.Lock()
-	//defer table.lock.Unlock()
 	value := table.data[key]
 	if value != 1<<32 {
 		return value, 2
@@ -49,32 +45,44 @@ func (table *HashTable) Get(key int) (int, int) {
 }
 
 func (table *HashTable) String() string {
-	//table.lock.Lock()
-	//defer table.lock.Unlock()
+	for _, l := range table.locks {
+		l.Lock()
+	}
 	var s string
 	for k,v := range table.data {
 		s += "( " + strconv.Itoa(k) + " , " + strconv.Itoa(v) + ")\n"
+	}
+	for _, l := range table.locks {
+		l.Unlock()
 	}
 	return s
 }
 
 func (table *HashTable) Clear() {
-	//table.lock.Lock()
-	//defer table.lock.Unlock()
+	for _, l := range table.locks {
+		l.Lock()
+	}
 	table.data = make([]int, keyRange)
 	for i := range table.data {
 		table.data[i] = 1<<32
 	}
+	for _, l := range table.locks {
+		l.Unlock()
+	}
 }
 
 func (table *HashTable) Size() int {
-	table.lock.Lock()
-	defer table.lock.Unlock()
+	for _, l := range table.locks {
+		l.Lock()
+	}
 	size := 0
 	for _, v := range table.data {
 		if v != 1<<32 {
 			size++
 		}
+	}
+	for _, l := range table.locks {
+		l.Unlock()
 	}
 	return size
 }

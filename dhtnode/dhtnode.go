@@ -38,7 +38,7 @@ func (node *DHTNode) handleMessages(conn net.Conn) {
 		ok := -1
 		switch opcode {
 		case -1:
-			fmt.Println("Closing connection...", conn)
+			//fmt.Println("Closing connection...", conn)
 			node.network.Close(conn)
 			return
 		case 1:
@@ -47,7 +47,7 @@ func (node *DHTNode) handleMessages(conn net.Conn) {
 			} else {
 				value, ok = node.network.LetsGoOffNoding(opcode, key, value)
 			}
-			fmt.Println("Get: (", key, ")")
+			//fmt.Println("Get: (", key, ")")
 			break
 		case 2:
 			if node.network.KeyInRange(key) {
@@ -55,29 +55,29 @@ func (node *DHTNode) handleMessages(conn net.Conn) {
 			} else {
 				value, ok = node.network.LetsGoOffNoding(opcode, key, value)
 			}
-			fmt.Println("Put: (", key, ", ", value, ")")
+			//fmt.Println("Put: (", key, ", ", value, ")")
 			break
 		case 3:
 			node.network.Send(conn, node.hashTable.String())
-			fmt.Println("Current state:")
-			fmt.Println(node.hashTable.String())
+			//fmt.Println("Current state:")
+			//fmt.Println(node.hashTable.String())
 			break
 		case 4:
 			node.network.Send(conn, strconv.Itoa(node.hashTable.Size()) + "\n")
-			fmt.Println("Size: ", node.hashTable.Size())
+			//fmt.Println("Size: ", node.hashTable.Size())
 			break
 		case 5:
 			node.hashTable.Clear()
 			ok = 2
-			fmt.Println("TABLE CLEARED!")
+			//fmt.Println("TABLE CLEARED!")
 			break
 		default:
-			fmt.Println("default switch handle....",opcode)
+			//fmt.Println("default switch handle....",opcode)
 			node.network.Send(conn, "IGNORED\n")
-			fmt.Println("Ignoring message")
+			//fmt.Println("Ignoring message")
 		}
 
-		fmt.Println(ok, strconv.Itoa(key),strconv.Itoa(value))
+		//fmt.Println(ok, strconv.Itoa(key),strconv.Itoa(value))
 
 		switch ok {
 		case 0:
