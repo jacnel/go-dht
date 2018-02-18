@@ -3,6 +3,7 @@ package dhtnode
 import (
 	"fmt"
 	"strconv"
+	"net"
 )
 
 type DHTNode struct {
@@ -25,21 +26,20 @@ func (node *DHTNode) init(port int, configFilepath string) {
 func (node *DHTNode) Listen() {
 	node.network.Listen()
 	for{
-		node.network.Accept()
-		go node.handleMessages()
+		conn := node.network.Accept()
+		go node.handleMessages(conn)
 	}
 }
 
-func (node *DHTNode) handleMessages() {
+func (node *DHTNode) handleMessages(conn net.Conn) {
 	var opcode, key, value int
 	for {
-		opcode, key, value = node.network.Receive()
+		opcode, key, value = node.network.Receive(conn)
 		ok := -1
 		switch opcode {
 		case -1:
-			fmt.Println("Closing connection...", node.network.conn)
-			node.network.Send("")
-			node.network.Close()
+			fmt.Println("Closing connection...")
+			node.network.Close(conn)
 			return
 		case 1:
 			if node.network.KeyInRange(key){
@@ -58,12 +58,12 @@ func (node *DHTNode) handleMessages() {
 			fmt.Println("Put: (", key, ", ", value, ")")
 			break
 		case 3:
-			node.network.Send(node.hashTable.String())
+			node.network.Send(conn, node.hashTable.String())
 			fmt.Println("Current state:")
 			fmt.Println(node.hashTable.String())
 			break
 		case 4:
-			node.network.Send(strconv.Itoa(node.hashTable.Size()) + "\n")
+			node.network.Send(conn, strconv.Itoa(node.hashTable.Size()) + "\n")
 			fmt.Println("Size: ", node.hashTable.Size())
 			break
 		case 5:
@@ -73,7 +73,7 @@ func (node *DHTNode) handleMessages() {
 			break
 		default:
 			fmt.Println("default switch handle....",opcode)
-			node.network.Send("IGNORED\n")
+			node.network.Send(conn, "IGNORED\n")
 			fmt.Println("Ignoring message")
 		}
 
@@ -81,13 +81,13 @@ func (node *DHTNode) handleMessages() {
 
 		switch ok {
 		case 0:
-			node.network.Send("FAIL;"+strconv.Itoa(key)+";"+strconv.Itoa(value)+"\n")
+			node.network.Send(conn, "FAIL;"+strconv.Itoa(key)+";"+strconv.Itoa(value)+"\n")
 			break
 		case 1:
-			node.network.Send("EXISTS;"+strconv.Itoa(key)+";"+strconv.Itoa(value)+"\n")
+			node.network.Send(conn, "EXISTS;"+strconv.Itoa(key)+";"+strconv.Itoa(value)+"\n")
 			break
 		case 2:
-			node.network.Send( "OK;"+strconv.Itoa(key)+";"+strconv.Itoa(value)+"\n")
+			node.network.Send(conn, "OK;"+strconv.Itoa(key)+";"+strconv.Itoa(value)+"\n")
 			break
 		default:
 			break

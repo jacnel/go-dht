@@ -16,7 +16,6 @@ type Network struct {
 	ip2idMap  map[string]int
 	id2ipMap  map[int]string
 	listener  net.Listener
-	conn      net.Conn
 }
 
 // public functions
@@ -31,18 +30,18 @@ func (network *Network) Listen() {
 	network.listener = ln
 }
 
-func (network *Network) Accept() {
+func (network *Network) Accept() net.Conn{
 	conn, err := network.listener.Accept()
 	if err != nil {
 		fmt.Println("Failed to handle incoming connection...")
 	} else {
 		fmt.Println("Connection established...", conn)
 	}
-	network.conn = conn
+	return conn
 }
 
-func (network *Network) Receive() (int, int, int){
-	message := network.getMessage()
+func (network *Network) Receive(conn net.Conn) (int, int, int){
+	message := network.getMessage(conn)
 	opcode, key, value := parseClientMessage(message)
 	return opcode, key, value
 }
@@ -56,9 +55,9 @@ func (network *Network) KeyInRange(key int) bool {
 	return false
 }
 
-func (network *Network) Send(message string) {
+func (network *Network) Send(conn net.Conn, message string) {
 	data := []byte(message)
-	_, err := network.conn.Write(data)
+	_, err := conn.Write(data)
 	check(err)
 }
 
@@ -82,8 +81,8 @@ func (network *Network) LetsGoOffNoding(opcode, key, value int) (int, int) {
 	fmt.Println("HERE")
 	return parseNodeMessage(string(data[:n]))
 }
-func (network *Network) Close() {
-	network.conn.Close()
+func (network *Network) Close(conn net.Conn) {
+	conn.Close()
 }
 
 // dependent helper functions
@@ -130,13 +129,13 @@ func loadConfig(config_file string) map[string][]string {
 	check(err)
 	return json_obj
 }
-func (network *Network) getMessage() string {
+func (network *Network) getMessage(conn net.Conn) string {
 	data := make([]byte, 1024)
 	var(
 		err error
 		n int
 	)
-	n, err = network.conn.Read(data)
+	n, err = conn.Read(data)
 	if(err == io.EOF) {
 		return "-1;0;0"
 	} else if err != nil {
