@@ -10,7 +10,7 @@ import (
 
 func TestNode1(t *testing.T) {
      n := dhtnode.DHTNode{}
-     n.StartNode(8403, "../node/config.json")
+     n.StartNode(8403, "./node/config.json")
 }
 //
 //func TestNode2(t *testing.T) {

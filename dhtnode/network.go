@@ -65,10 +65,12 @@ func (network *Network) LetsGoOffNoding(opcode, key, value int) (int, int) {
 	targetAddr := network.id2ipMap[targetNode]
 	// set up connection with target node and send info
 	conn, err := net.Dial("tcp", targetAddr)
-	for strings.Compare(err.Error(), "connect: can't assign requested address") == 0 {
-		conn, err = net.Dial("tcp", targetAddr)
+	if err != nil {
+		for strings.Compare(err.Error(), "connect: can't assign requested address") == 0 {
+			conn, err = net.Dial("tcp", targetAddr)
+		}
+		check(err)
 	}
-	check(err)
 	message := strconv.Itoa(opcode)+";"+strconv.Itoa(key)+";"+strconv.Itoa(value)
 	_, err = conn.Write([]byte(message))
 	check(err)
