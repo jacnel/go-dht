@@ -20,8 +20,8 @@ func doRandomWork(i, numOps int, ch chan int) {
 		if j % 10 == 0 {
 			fmt.Println("client:", i, "j:", j, "puts:", puts)
 		}
-		r := rand2.Intn(100)
-		if r < 40 {
+		r := rand2.Intn(100000)
+		if r < 40000 {
 			_, ok := c.Put(r, i)
 			if ok == 2 {
 				puts++
