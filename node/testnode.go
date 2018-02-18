@@ -47,7 +47,7 @@ func doRandomWork(i, numOps, keyRange int, opsChan, putsChan chan int, runtimeCh
 			}
 		} else {
 			start := time.Now()
-			c.Get(j)
+			c.Get(r)
 			elapsed := time.Since(start)
 			nanos += elapsed.Nanoseconds()
 			ops++
@@ -95,7 +95,7 @@ func main() {
 		ops = append(ops, o)
 		totalOps += o
 	}
-	fmt.Printf("Total operations: %dops\n", totalOps)
+	fmt.Printf("Total operations: %d ops\n", totalOps)
 
 	// Calculate total runtime
 	runtimes := make([]float64, 0)
@@ -106,7 +106,7 @@ func main() {
 		throughput += float64(ops[i]) / rt * 1000
 	}
 	throughput /= float64(numClients)
-	fmt.Printf("Average throughput: %4.2fops\n", throughput)
+	fmt.Printf("Average throughput: %4.2f ops\n", throughput)
 
 	latency := 0.0
 	for i := 0; i < numClients; i++ {
