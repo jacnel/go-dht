@@ -2,7 +2,6 @@ package dhtnode
 
 import (
 	"fmt"
-	"net"
 	"strconv"
 )
 
