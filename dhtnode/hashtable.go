@@ -13,34 +13,34 @@ type HashTable struct{
 	locks []sync.Mutex
 }
 
-func (ls *HashTable) Init() {
-	ls.data = make([]int, keyRange)
-	for i := range ls.data {
-		ls.data[i] = 1<<32
+func (table *HashTable) Init() {
+	table.data = make([]int, keyRange)
+	for i := range table.data {
+		table.data[i] = 1<<32
 	}
-	ls.locks = make([]sync.Mutex, numLocks)
+	table.locks = make([]sync.Mutex, numLocks)
 }
 
-func (ls *HashTable) Put(key, value int) (int, int) {
-	ls.locks[key % numLocks].Lock()
-	defer ls.locks[key % numLocks].Unlock()
-	//ls.lock.Lock()
-	//defer ls.lock.Unlock()
-	v := ls.data[key]
+func (table *HashTable) Put(key, value int) (int, int) {
+	table.locks[key % numLocks].Lock()
+	defer table.locks[key % numLocks].Unlock()
+	//table.lock.Lock()
+	//defer table.lock.Unlock()
+	v := table.data[key]
 	if v != 1<<32 {
 		return v, 1
 	} else {
-		ls.data[key] = value
+		table.data[key] = value
 		return value, 2
 	}
 }
 
-func (ls *HashTable) Get(key int) (int, int) {
-	ls.locks[key % numLocks].Lock()
-	defer ls.locks[key % numLocks].Unlock()
-	//ls.lock.Lock()
-	//defer ls.lock.Unlock()
-	value := ls.data[key]
+func (table *HashTable) Get(key int) (int, int) {
+	table.locks[key % numLocks].Lock()
+	defer table.locks[key % numLocks].Unlock()
+	//table.lock.Lock()
+	//defer table.lock.Unlock()
+	value := table.data[key]
 	if value != 1<<32 {
 		return value, 2
 	} else {
@@ -48,27 +48,33 @@ func (ls *HashTable) Get(key int) (int, int) {
 	}
 }
 
-func (ls *HashTable) String() string {
-	//ls.lock.Lock()
-	//defer ls.lock.Unlock()
+func (table *HashTable) String() string {
+	//table.lock.Lock()
+	//defer table.lock.Unlock()
 	var s string
-	for k,v := range ls.data {
+	for k,v := range table.data {
 		s += "( " + strconv.Itoa(k) + " , " + strconv.Itoa(v) + ")\n"
 	}
 	return s
 }
 
-func (ls *HashTable) Clear() {
-	//ls.lock.Lock()
-	//defer ls.lock.Unlock()
-	ls.data = make([]int, keyRange)
-	for i := range ls.data {
-		ls.data[i] = 1<<32
+func (table *HashTable) Clear() {
+	//table.lock.Lock()
+	//defer table.lock.Unlock()
+	table.data = make([]int, keyRange)
+	for i := range table.data {
+		table.data[i] = 1<<32
 	}
 }
 
-func (ls *HashTable) Size() int {
-	ls.lock.Lock()
-	defer ls.lock.Unlock()
-	return len(ls.data)
+func (table *HashTable) Size() int {
+	table.lock.Lock()
+	defer table.lock.Unlock()
+	size := 0
+	for _, v := range table.data {
+		if v != 1<<32 {
+			size++
+		}
+	}
+	return size
 }
