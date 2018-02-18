@@ -14,7 +14,10 @@ type HashTable struct{
 }
 
 func (ls *HashTable) Init() {
-	ls.data = make([]int, keyRange, 1<<32)
+	ls.data = make([]int, keyRange)
+	for i := range ls.data {
+		ls.data[i] = 1<<32
+	}
 	ls.locks = make([]sync.Mutex, numLocks)
 }
 
@@ -58,7 +61,10 @@ func (ls *HashTable) String() string {
 func (ls *HashTable) Clear() {
 	//ls.lock.Lock()
 	//defer ls.lock.Unlock()
-	ls.data = make([]int, keyRange, 1<<32)
+	ls.data = make([]int, keyRange)
+	for i := range ls.data {
+		ls.data[i] = 1<<32
+	}
 }
 
 func (ls *HashTable) Size() int {
