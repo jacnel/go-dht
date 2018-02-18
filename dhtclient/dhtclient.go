@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"strings"
 	"fmt"
-	"time"
 )
 
 type DHTClient struct {
@@ -28,8 +27,7 @@ func (client *DHTClient) Get(key int) (int, int) {
 		panic(err)
 	}
 	data := make([]byte, 1024)
-	fmt.Println(client.dhtConn)
-	(*client.dhtConn).SetReadDeadline(time.Now().Add(5*time.Second))
+	fmt.Println((*client.dhtConn).LocalAddr(), (*client.dhtConn).RemoteAddr())
 	n, err := (*client.dhtConn).Read(data)
 	fmt.Println(string(data[:n]))
 	if err != nil {
@@ -45,7 +43,8 @@ func (client *DHTClient) Put(key, value int) (int, int) {
 		panic(err)
 	}
 	data := make([]byte, 1024)
-	fmt.Println(client.dhtConn)
+	fmt.Println((*client.dhtConn).LocalAddr(), (*client.dhtConn).RemoteAddr())
+	//(*client.dhtConn).SetReadDeadline(time.Now().Add(5*time.Second))
 	n, err = (*client.dhtConn).Read(data)
 	fmt.Println("data", string(data[:n]))
 	if err != nil {

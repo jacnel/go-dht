@@ -16,6 +16,7 @@ type Network struct {
 	ip2idMap  map[string]int
 	id2ipMap  map[int]string
 	listener  net.Listener
+	conn      net.Conn
 }
 
 // public functions
@@ -30,18 +31,18 @@ func (network *Network) Listen() {
 	network.listener = ln
 }
 
-func (network *Network) Accept() *net.Conn{
+func (network *Network) Accept() {
 	conn, err := network.listener.Accept()
 	if err != nil {
 		fmt.Println("Failed to handle incoming connection...")
 	} else {
 		fmt.Println("Connection established...")
 	}
-	return &conn
+	network.conn = conn
 }
 
-func (network *Network) Receive(conn *net.Conn) (int, int, int){
-	message := getMessage(conn)
+func (network *Network) Receive() (int, int, int){
+	message := network.getMessage()
 	opcode, key, value := parseClientMessage(message)
 	return opcode, key, value
 }
@@ -55,16 +56,15 @@ func (network *Network) KeyInRange(key int) bool {
 	return false
 }
 
-func (network *Network) Send(conn *net.Conn, message string) {
+func (network *Network) Send(message string) {
 	data := []byte(message)
 	var(
 		err error
 		n int
 	)
-	n, err = (*conn).Write(data)
-	fmt.Println(n, err, message, (*conn).LocalAddr(), (*conn).RemoteAddr())
+	n, err = network.conn.Write(data)
+	fmt.Println(n, err, message, network.conn.LocalAddr(), network.conn.RemoteAddr())
 	check(err)
-	fmt.Println("HERE!")
 }
 
 func (network *Network) LetsGoOffNoding(opcode, key, value int) (int, int) {
@@ -86,8 +86,8 @@ func (network *Network) LetsGoOffNoding(opcode, key, value int) (int, int) {
 	fmt.Println("HERE")
 	return parseNodeMessage(string(data[:n]))
 }
-func (network *Network) Close(conn *net.Conn) {
-	(*conn).Close()
+func (network *Network) Close() {
+	network.conn.Close()
 }
 
 // dependent helper functions
@@ -134,13 +134,13 @@ func loadConfig(config_file string) map[string][]string {
 	check(err)
 	return json_obj
 }
-func getMessage(conn *net.Conn) string {
+func (network *Network) getMessage() string {
 	data := make([]byte, 1024)
 	var(
 		err error
 		n int
 	)
-	n, err = (*conn).Read(data)
+	n, err = network.conn.Read(data)
 	if(err != nil) {
 		fmt.Println(err)
 		return "-1;0;0"
