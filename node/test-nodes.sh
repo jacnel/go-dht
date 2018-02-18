@@ -9,6 +9,7 @@ printf "cd go/src/dht/node/\nsh launch-node.sh & exit\n" | ssh -i dht-testing.pe
 printf "cd go/src/dht/node/\nsh launch-node.sh & exit\n" | ssh -i dht-testing.pem ec2-user@ec2-34-233-120-248.compute-1.amazonaws.com &
 
 go build testnode.go
+sleep 5
 
 ./testnode 4 5000 10
 sh clear-tables.sh

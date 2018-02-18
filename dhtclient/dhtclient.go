@@ -44,11 +44,25 @@ func (client *DHTClient) Put(key, value int) (int, int) {
 	data := make([]byte, 1024)
 	n, err = (*client.dhtConn).Read(data)
 	if err != nil {
-		if err == io.EOF {
-			return 0, 0
-		}
+		return 0, 0
 	}
 	return parseNodeMessage(string(data[:n]))
+}
+
+func (client *DHTClient) Size() int {
+	n, err := (*client.dhtConn).Write([]byte("4;;\n"))
+	if err != nil {
+		panic(err)
+	}
+	data := make([]byte, 1024)
+	n, err = (*client.dhtConn).Read(data)
+	if err != nil {
+		if err == io.EOF {
+			return 0
+		}
+	}
+	retval,_ := strconv.Atoi(strings.TrimSpace(string(data[:n])))
+	return retval
 }
 
 func (client *DHTClient) Close() {

@@ -1,4 +1,4 @@
 #! /bin/bash
 
-go build startdhtnode.go
-./startdhtnode 8403
+go build ~/go/src/node/startdhtnode.go
+~/go/src/node/startdhtnode 8403
