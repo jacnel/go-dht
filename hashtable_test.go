@@ -24,8 +24,8 @@ import (
 
 func doRandomWork(i int, ch chan int) {
      c := dhtclient.DHTClient{}
-     defer c.Close()
-     if i % 1 != 0 {
+     //defer c.Close()
+     if i % 1 == 0 {
           c.Init("128.180.110.83:8403")
      } else {
           c.Init("128.180.145.134:8403")
@@ -47,7 +47,7 @@ func doRandomWork(i int, ch chan int) {
 
 func TestClient(t *testing.T) {
      ch := make(chan int)
-     numClients := 1
+     numClients := 2
      for i := 0; i < numClients; i++ {
           fmt.Println("Spawning new client")
           go doRandomWork(i, ch)
