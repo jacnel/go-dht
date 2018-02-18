@@ -11,9 +11,9 @@ import (
 func doRandomWork(i, numOps, keyRange int, ch chan int) {
 	c := dhtclient.DHTClient{}
 	if i % 1 != 0 {
-		c.Init("128.180.110.83:8403")
+		c.Init("54.208.29.162:8403")
 	} else {
-		c.Init("128.180.145.134:8403")
+		c.Init("54.211.127.45:8403")
 	}
 	puts := 0
 	for j := 0; j < numOps; j++ {
@@ -21,7 +21,7 @@ func doRandomWork(i, numOps, keyRange int, ch chan int) {
 			fmt.Println("client:", i, "j:", j, "puts:", puts)
 		}
 		r := rand2.Intn(keyRange)
-		if r < keyRange * .4 {
+		if r < int(float64(keyRange) * .4) {
 			_, ok := c.Put(r, i)
 			if ok == 2 {
 				puts++
