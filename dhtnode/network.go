@@ -58,12 +58,7 @@ func (network *Network) KeyInRange(key int) bool {
 
 func (network *Network) Send(message string) {
 	data := []byte(message)
-	var(
-		err error
-		n int
-	)
-	n, err = network.conn.Write(data)
-	fmt.Println(n, err, message, network.conn.LocalAddr(), network.conn.RemoteAddr())
+	_, err := network.conn.Write(data)
 	check(err)
 }
 
@@ -80,8 +75,9 @@ func (network *Network) LetsGoOffNoding(opcode, key, value int) (int, int) {
 	n, err := conn.Read(data)
 	if(err == io.EOF) {
 		return 0, 0
+	} else {
+		check(err)
 	}
-	check(err)
 	conn.Close()
 	fmt.Println("HERE")
 	return parseNodeMessage(string(data[:n]))
@@ -141,9 +137,10 @@ func (network *Network) getMessage() string {
 		n int
 	)
 	n, err = network.conn.Read(data)
-	if(err != nil) {
-		fmt.Println(err)
+	if(err == io.EOF) {
 		return "-1;0;0"
+	} else {
+		check(err)
 	}
 	return string(data[:n])
 }

@@ -22,18 +22,16 @@ import (
 //     n.StartNode(8405)
 //}
 
-func doRandomWork(i int, ch chan int) {
-     c := dhtclient.DHTClient{}
-     //defer c.Close()
+func doRandomWork(c dhtclient.DHTClient, i int, ch chan int) {
      if i % 1 == 0 {
           c.Init("128.180.110.83:8403")
      } else {
           c.Init("128.180.145.134:8403")
      }
      puts := 0
-     for j := 0; j < 100; j++ {
-          r := rand2.Intn(100)
-          if r < 40 {
+     for j := 0; j < 10000; j++ {
+          r := rand2.Intn(10000)
+          if r < 4000 {
                _, ok := c.Put(r, i)
                if ok == 2 {
                     puts++
@@ -47,10 +45,11 @@ func doRandomWork(i int, ch chan int) {
 
 func TestClient(t *testing.T) {
      ch := make(chan int)
-     numClients := 2
+     numClients := 1
      for i := 0; i < numClients; i++ {
           fmt.Println("Spawning new client")
-          go doRandomWork(i, ch)
+          c := dhtclient.DHTClient{}
+          go doRandomWork(c, i, ch)
           //go doSameWork(i, ch)
      }
      var puts []int

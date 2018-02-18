@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 	"fmt"
+	"io"
 )
 
 type DHTClient struct {
@@ -31,6 +32,9 @@ func (client *DHTClient) Get(key int) (int, int) {
 	n, err := (*client.dhtConn).Read(data)
 	fmt.Println(string(data[:n]))
 	if err != nil {
+		if err == io.EOF {
+			return 0, 0
+		}
 		panic(err)
 	}
 	return parseNodeMessage(string(data[:n]))
@@ -51,7 +55,10 @@ func (client *DHTClient) Put(key, value int) (int, int) {
 	//}
 	fmt.Println("data", string(data[:n]))
 	if err != nil {
-		fmt.Println(err)
+		if err == io.EOF {
+			return 0, 0
+		}
+		panic(err)
 	}
 	return parseNodeMessage(string(data[:n]))
 }
