@@ -72,7 +72,7 @@ func (node *DHTNode) handleMessages(conn net.Conn) {
 			break
 		default:
 			//fmt.Println("default switch handle....",opcode)
-			node.network.Send(conn, "IGNORED\n")
+			//node.network.Send(conn, "IGNORED\n")
 			//fmt.Println("Ignoring message")
 		}
 

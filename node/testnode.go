@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func doRandomWork(i, numOps int, ch chan int) {
+func doRandomWork(i, numOps, keyRange int, ch chan int) {
 	c := dhtclient.DHTClient{}
 	if i % 1 != 0 {
 		c.Init("128.180.110.83:8403")
@@ -20,8 +20,8 @@ func doRandomWork(i, numOps int, ch chan int) {
 		if j % 10 == 0 {
 			fmt.Println("client:", i, "j:", j, "puts:", puts)
 		}
-		r := rand2.Intn(100000)
-		if r < 40000 {
+		r := rand2.Intn(keyRange)
+		if r < keyRange * .4 {
 			_, ok := c.Put(r, i)
 			if ok == 2 {
 				puts++
@@ -34,16 +34,17 @@ func doRandomWork(i, numOps int, ch chan int) {
 }
 
 func main() {
-	if len(os.Args) != 3 {
-		panic("Enter a number of clients to spin up and the number of operations per client.")
+	if len(os.Args) != 4 {
+		panic("Enter a number of clients to spin up, the number of operations per client and the key range.")
 	}
 	numClients,_ := strconv.Atoi(os.Args[1])
 	numOps,_ := strconv.Atoi(os.Args[2])
+	keyRange, _ := strconv.Atoi(os.Args[3])
 
 	ch := make(chan int)
 	fmt.Println("Spawning new clients")
 	for i := 0; i < numClients; i++ {
-		go doRandomWork(i, numOps, ch)
+		go doRandomWork(i, numOps, keyRange, ch)
 	}
 	fmt.Println("Done")
 	var puts []int

@@ -142,9 +142,7 @@ func (network *Network) getMessage(conn net.Conn) string {
 		n int
 	)
 	n, err = conn.Read(data)
-	if(err == io.EOF) {
-		return "-1;0;0"
-	} else if err != nil {
+	if err != nil {
 		return "-1;0;0"
 	}
 	return string(data[:n])
