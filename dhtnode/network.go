@@ -142,6 +142,7 @@ func getMessage(conn *net.Conn) string {
 	)
 	n, err = (*conn).Read(data)
 	if(err != nil) {
+		fmt.Println(err)
 		return "-1;0;0"
 	}
 	return string(data[:n])

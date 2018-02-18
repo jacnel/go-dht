@@ -34,7 +34,6 @@ func (node *DHTNode) Listen() {
 func (node *DHTNode) handleMessages(conn *net.Conn) {
 	var opcode, key, value int
 	for {
-
 		opcode, key, value = node.network.Receive(conn)
 		ok := -1
 		switch opcode {
