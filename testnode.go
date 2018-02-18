@@ -36,7 +36,7 @@ func main() {
 		panic("Enter a number of clients to spin up and the number of operations per client.")
 	}
 	numClients,_ := strconv.Atoi(os.Args[1])
-	numOps,_ := strconv.Atoi(os.Args[1])
+	numOps,_ := strconv.Atoi(os.Args[2])
 
 	ch := make(chan int)
 	for i := 0; i < numClients; i++ {
