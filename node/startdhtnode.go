@@ -21,5 +21,5 @@ func main() {
 		}
 	}
 	dhtNode := dhtnode.DHTNode{}
-	dhtNode.StartNode(port, "./node/config.json")
+	dhtNode.StartNode(port, "./config.json")
 }
