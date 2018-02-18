@@ -38,7 +38,7 @@ func (node *DHTNode) handleMessages(conn net.Conn) {
 		ok := -1
 		switch opcode {
 		case -1:
-			fmt.Println("Closing connection...")
+			fmt.Println("Closing connection...", conn)
 			node.network.Close(conn)
 			return
 		case 1:
