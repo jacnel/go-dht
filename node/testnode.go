@@ -91,12 +91,12 @@ func main() {
 			go doRandomWork(i, i, numOps, keyRange, &ops, &puts, &runtimes, done)
 		}
 	}
-	fmt.Println("Done")
-
 	// Wait for go routines to finish
 	for i := 0; i < numClients; i++ {
 		<- done
 	}
+	fmt.Println("Done")
+	fmt.Println(puts)
 
 	// Calculate total successful ops
 	totalOps := 0
@@ -162,7 +162,7 @@ func getTotalSize() int {
 			break
 		}
 		totalSize += c.Size()
+		c.Close()
 	}
-	c.Close()
 	return totalSize
 }
