@@ -56,8 +56,7 @@ func (network *Network) KeyInRange(key int) bool {
 
 func (network *Network) Send(conn net.Conn, message string) {
 	data := []byte(message)
-	_, err := conn.Write(data)
-	check(err)
+	conn.Write(data)
 }
 
 func (network *Network) LetsGoOffNoding(opcode, key, value int) (int, int) {

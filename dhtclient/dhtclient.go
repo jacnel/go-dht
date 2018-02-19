@@ -9,7 +9,7 @@ import (
 
 type DHTClient struct {
 	targetAddr string
-	dhtConn    net.Conn
+	dhtConn    *net.Conn
 }
 
 func (client *DHTClient) Init(addr string) {
@@ -18,16 +18,16 @@ func (client *DHTClient) Init(addr string) {
 	if(err != nil) {
 		panic("Could not connect to " + client.targetAddr)
 	}
-	client.dhtConn = conn
+	client.dhtConn = &conn
 }
 
 func (client *DHTClient) Get(key int) (int, int) {
-	_, err := client.dhtConn.Write([]byte("1;"+strconv.Itoa(key)+";\n"))
+	_, err := (*client.dhtConn).Write([]byte("1;"+strconv.Itoa(key)+";\n"))
 	if err != nil {
 		panic(err)
 	}
-	data := make([]byte, 1024)
-	n, err := client.dhtConn.Read(data)
+	data := make([]byte, 10)
+	n, err := (*client.dhtConn).Read(data)
 	if err != nil {
 		if err == io.EOF {
 			return 0, 0
@@ -37,12 +37,12 @@ func (client *DHTClient) Get(key int) (int, int) {
 }
 
 func (client *DHTClient) Put(key, value int) (int, int) {
-	_, err := client.dhtConn.Write([]byte("2;"+strconv.Itoa(key)+";\n"))
+	_, err := (*client.dhtConn).Write([]byte("2;"+strconv.Itoa(key)+";\n"))
 	if err != nil {
 		panic(err)
 	}
-	data := make([]byte, 1024)
-	n, err := client.dhtConn.Read(data)
+	data := make([]byte, 10)
+	n, err := (*client.dhtConn).Read(data)
 	if err != nil {
 		return 0, 0
 	}
@@ -50,12 +50,12 @@ func (client *DHTClient) Put(key, value int) (int, int) {
 }
 
 func (client *DHTClient) Size() int {
-	n, err := client.dhtConn.Write([]byte("4;;\n"))
+	n, err := (*client.dhtConn).Write([]byte("4;;\n"))
 	if err != nil {
 		panic(err)
 	}
-	data := make([]byte, 1024)
-	n, err = client.dhtConn.Read(data)
+	data := make([]byte, 10)
+	n, err = (*client.dhtConn).Read(data)
 	if err != nil {
 		if err == io.EOF {
 			return 0
@@ -66,7 +66,7 @@ func (client *DHTClient) Size() int {
 }
 
 func (client *DHTClient) Close() {
-	client.dhtConn.Close()
+	(*client.dhtConn).Close()
 }
 
 func parseNodeMessage(s string) (int, int) {
