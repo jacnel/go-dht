@@ -27,6 +27,7 @@ func doRandomWork(i, targetNode, numOps, keyRange int, ops, puts *[]int, runtime
 	default:
 		return
 	}
+	fmt.Println("Target node ->", targetNode % 4)
 	myPuts := 0
 	myOps := 0
 	var nanos int64
