@@ -15,6 +15,7 @@ type Network struct {
 	myNodeID  int
 	ip2idMap  map[string]int
 	id2ipMap  map[int]string
+	nodeConns []net.Conn
 	listener  net.Listener
 }
 
@@ -22,6 +23,7 @@ type Network struct {
 func (network *Network) Init(port int, configFilepath string) {
 	network.getNetworkConfig(configFilepath)
 	network.setMyAddr(port)
+	network.setNodeConns()
 }
 
 func (network *Network) Listen() {
@@ -146,6 +148,15 @@ func (network *Network) getMessage(conn net.Conn) string {
 		return "-1;0;0"
 	}
 	return string(data[:n])
+}
+func (network *Network) setNodeConns() {
+	network.nodeConns = make([]net.Conn, len(network.id2ipMap) - 1)
+	for i, addr := range network.id2ipMap {
+		if strings.Compare(addr, network.myAddress) != 0 {
+			//network.nodeConns[i], err := net.Dial("tcp", addr)
+			fmt.Println(addr, i)
+		}
+	}
 }
 func parseClientMessage(s string) (int, int, int) {
 	tokens := strings.Split(s, ";")
