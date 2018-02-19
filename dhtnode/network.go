@@ -23,7 +23,7 @@ type Network struct {
 func (network *Network) Init(port int, configFilepath string) {
 	network.getNetworkConfig(configFilepath)
 	network.setMyAddr(port)
-	network.nodeConns = make([]*net.Conn, len(network.id2ipMap) - 1)
+	network.nodeConns = make([]*net.Conn, len(network.id2ipMap))
 }
 
 func (network *Network) Listen() {
