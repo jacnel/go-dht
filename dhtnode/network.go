@@ -15,7 +15,7 @@ type Network struct {
 	myNodeID  int
 	ip2idMap  map[string]int
 	id2ipMap  map[int]string
-	nodeConns []*net.Conn
+	nodeConns []net.Conn
 	listener  net.Listener
 }
 
@@ -23,7 +23,7 @@ type Network struct {
 func (network *Network) Init(port int, configFilepath string) {
 	network.getNetworkConfig(configFilepath)
 	network.setMyAddr(port)
-	network.nodeConns = make([]*net.Conn, len(network.id2ipMap))
+	network.nodeConns = make([]net.Conn, len(network.id2ipMap))
 }
 
 func (network *Network) Listen() {
@@ -88,11 +88,11 @@ func (network *Network) LetsGoOffNoding(opcode, key, value int) (int, int) {
 	//conn.Close()
 	if network.nodeConns[targetNode] == nil {
 		var err error
-		*(network.nodeConns[targetNode]), err = net.Dial("tcp", targetAddr)
+		network.nodeConns[targetNode], err = net.Dial("tcp", targetAddr)
 		check(err)
 	}
 	message := strconv.Itoa(opcode)+";"+strconv.Itoa(key)+";"+strconv.Itoa(value)
-	conn := *(network.nodeConns[targetNode])
+	conn := network.nodeConns[targetNode]
 	_, err := conn.Write([]byte(message))
 	check(err)
 	data := make([]byte, 1024)
