@@ -83,7 +83,7 @@ func main() {
 		if targetNode >= 0 {
 			go doRandomWork(i, targetNode, numOps, keyRange, &ops, &puts, &runtimes, done)
 		} else {
-			go doRandomWork(i, -1, numOps, keyRange, &ops, &puts, &runtimes, done)
+			go doRandomWork(i, i, numOps, keyRange, &ops, &puts, &runtimes, done)
 		}
 	}
 	fmt.Println("Done")
@@ -115,14 +115,14 @@ func main() {
 		totalThroughput += t
 	}
 
-	fmt.Printf("System throughput: %4.2f ops\n", totalThroughput)
+	fmt.Printf("System throughput: %4.2f ops/s\n", totalThroughput)
 
 	latency := 0.0
 	for i := 0; i < numClients; i++ {
 		latency += runtimes[i] / float64(ops[i])
 	}
 	latency /= float64(numClients)
-	fmt.Printf("Average latency %4.2fms\n", latency)
+	fmt.Printf("Average latency %4.2f ms\n", latency)
 
 	// Sanity check
 	totalPuts := 0
