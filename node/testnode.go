@@ -34,8 +34,7 @@ func doRandomWork(i, targetNode, numOps, keyRange int, ops, puts *[]int, runtime
 	myPuts := 0
 	myOps := 0
 	var nanos int64
-	now := time.Now()
-	rand2.Seed(time.Since(now).Nanoseconds())
+	rand2.Seed(int64(time.Now().Nanosecond()))
 	for j := 0; j < numOps; j++ {
 		if j % 50 == 0 {
 			fmt.Printf(".")
