@@ -9,9 +9,9 @@ import (
 	"time"
 )
 
-func doRandomWork(i, numOps, keyRange int, ops, puts *[]int, runtimes *[]float64, done chan bool) {
+func doRandomWork(i, targetNode, numOps, keyRange int, ops, puts *[]int, runtimes *[]float64, done chan bool) {
 	c := dhtclient.DHTClient{}
-	switch i % 4 {
+	switch targetNode % 4 {
 	case 0:
 		c.Init("54.208.29.162:8403")
 		break
@@ -55,6 +55,7 @@ func doRandomWork(i, numOps, keyRange int, ops, puts *[]int, runtimes *[]float64
 	(*ops)[i] = myOps
 	(*puts)[i] = myPuts
 	(*runtimes)[i] = float64(nanos) / 1000000
+
 	done <- true
 	c.Close()
 }
@@ -80,9 +81,9 @@ func main() {
 	fmt.Println("Spawning new clients")
 	for i := 0; i < numClients; i++ {
 		if targetNode >= 0 {
-			go doRandomWork(targetNode, numOps, keyRange, &ops, &puts, &runtimes, done)
+			go doRandomWork(i, targetNode, numOps, keyRange, &ops, &puts, &runtimes, done)
 		} else {
-			go doRandomWork(i, numOps, keyRange, &ops, &puts, &runtimes, done)
+			go doRandomWork(i, -1, numOps, keyRange, &ops, &puts, &runtimes, done)
 		}
 	}
 	fmt.Println("Done")
