@@ -6,11 +6,10 @@ import (
 	rand2 "math/rand"
 	"os"
 	"strconv"
-	//"time"
 	"time"
 )
 
-func doRandomWork(i, numOps, keyRange int, opsChan, putsChan chan int, runtimeChan chan float64) {
+func doRandomWork(i, numOps, keyRange int, ops, puts *[]int, runtimes *[]float64, done chan bool) {
 	c := dhtclient.DHTClient{}
 	switch i % 4 {
 	case 0:
@@ -28,12 +27,12 @@ func doRandomWork(i, numOps, keyRange int, opsChan, putsChan chan int, runtimeCh
 	default:
 		return
 	}
-	puts := 0
-	ops  := 0
+	myPuts := 0
+	myOps := 0
 	var nanos int64
 	for j := 0; j < numOps; j++ {
 		if j % 50 == 0 {
-			fmt.Println("client:", i, "j:", j, "puts:", puts)
+			fmt.Println("client:", i, "j:", j, "myPuts:", myPuts)
 		}
 		r := rand2.Intn(keyRange)
 		if r < int(float64(keyRange) * .4) {
@@ -41,22 +40,22 @@ func doRandomWork(i, numOps, keyRange int, opsChan, putsChan chan int, runtimeCh
 			_, ok := c.Put(r, i)
 			elapsed := time.Since(start)
 			nanos += elapsed.Nanoseconds()
-			ops++
+			myOps++
 			if ok == 2 {
-				puts++
+				myPuts++
 			}
 		} else {
 			start := time.Now()
 			c.Get(r)
 			elapsed := time.Since(start)
 			nanos += elapsed.Nanoseconds()
-			ops++
+			myOps++
 		}
 	}
-	putsChan <- puts
-	opsChan <- ops
-	runtimeChan <- float64(nanos) / float64(1000000)
-
+	(*ops)[i] = myOps
+	(*puts)[i] = myPuts
+	(*runtimes)[i] = float64(nanos) / 1000000
+	done <- true
 	c.Close()
 }
 
@@ -72,41 +71,50 @@ func main() {
 		targetNode,_ = strconv.Atoi(os.Args[4])
 	}
 
-	putsChan := make(chan int, numClients)
-	opsChan  := make(chan int, numClients)
-	runtimeChan := make(chan float64, numClients)
+	runtimes := make([]float64, numClients)
+	ops := make([]int, numClients)
+	puts := make([]int, numClients)
+	done := make(chan bool, numClients)
 
 	// Start clients
 	fmt.Println("Spawning new clients")
 	for i := 0; i < numClients; i++ {
 		if targetNode >= 0 {
-			go doRandomWork(targetNode, numOps, keyRange, opsChan, putsChan, runtimeChan)
+			go doRandomWork(targetNode, numOps, keyRange, &ops, &puts, &runtimes, done)
 		} else {
-			go doRandomWork(i, numOps, keyRange, opsChan, putsChan, runtimeChan)
+			go doRandomWork(i, numOps, keyRange, &ops, &puts, &runtimes, done)
 		}
 	}
 	fmt.Println("Done")
 
+	// Wait for go routines to finish
+	for i := 0; i < numClients; i++ {
+		<- done
+	}
+
 	// Calculate total successful ops
 	totalOps := 0
-	ops := make([]int, 0)
 	for i := 0; i < numClients; i++ {
-		o := <-opsChan
+		o := ops[i]
 		ops = append(ops, o)
 		totalOps += o
 	}
 	fmt.Printf("Total operations: %d ops\n", totalOps)
 
 	// Calculate total runtime
-	runtimes := make([]float64, 0)
-	throughput := 0.0
+	throughputs := make([]float64, 4)
 	for i := 0; i < numClients; i++ {
-		rt := <-runtimeChan
+		rt := runtimes[i]
 		runtimes = append(runtimes, rt)
-		throughput += float64(ops[i]) / rt * 1000
+		throughputs[i % 4] += float64(ops[i]) / rt * 1000
 	}
-	throughput /= float64(numClients)
-	fmt.Printf("Average throughput: %4.2f ops\n", throughput)
+
+	totalThroughput := 0.0
+	for _, t := range throughputs {
+		totalThroughput += t
+	}
+
+	fmt.Printf("System throughput: %4.2f ops\n", totalThroughput)
 
 	latency := 0.0
 	for i := 0; i < numClients; i++ {
@@ -118,7 +126,7 @@ func main() {
 	// Sanity check
 	totalPuts := 0
 	for i := 0; i < numClients; i++ {
-		totalPuts += <-putsChan
+		totalPuts += puts[i]
 	}
 
 	totalSize := getTotalSize()
