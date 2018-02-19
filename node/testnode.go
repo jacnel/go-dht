@@ -12,6 +12,9 @@ import (
 func doRandomWork(i, targetNode, numOps, keyRange int, ops, puts *[]int, runtimes *[]float64, done chan bool) {
 	c := dhtclient.DHTClient{}
 	switch targetNode % 4 {
+	case -1:
+		c.Init("127.0.0.1:8403")
+		break
 	case 0:
 		c.Init("54.208.29.162:8403")
 		break
@@ -35,7 +38,7 @@ func doRandomWork(i, targetNode, numOps, keyRange int, ops, puts *[]int, runtime
 	rand2.Seed(time.Since(now).Nanoseconds())
 	for j := 0; j < numOps; j++ {
 		if j % 50 == 0 {
-			fmt.Println("client:", i, "j:", j, "myPuts:", myPuts)
+			fmt.Printf(".")
 		}
 		r := rand2.Intn(keyRange)
 		if r < int(float64(keyRange) * .4) {
