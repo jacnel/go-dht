@@ -163,6 +163,7 @@ func (network *Network) setNodeConns() {
 	for i, addr := range network.id2ipMap {
 		if strings.Compare(addr, network.myAddress) != 0 {
 			var err error
+			fmt.Println("connecting to... ", addr)
 			conn, err := net.Dial("tcp", addr)
 			network.nodeConns[i] = &conn
 			check(err)
