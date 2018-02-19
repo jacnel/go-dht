@@ -160,13 +160,13 @@ func (network *Network) getMessage(conn net.Conn) string {
 }
 func (network *Network) setNodeConns() {
 	network.nodeConns = make([]*net.Conn, len(network.id2ipMap) - 1)
-	for i, addr := range network.id2ipMap {
+	for _, addr := range network.id2ipMap {
 		if strings.Compare(addr, network.myAddress) != 0 {
-			var err error
+			//var err error
 			fmt.Println("connecting to... ", addr)
-			conn, err := net.Dial("tcp", addr)
-			network.nodeConns[i] = &conn
-			check(err)
+			//conn, err := net.Dial("tcp", addr)
+			//network.nodeConns[i] = &conn
+			//check(err)
 		}
 	}
 }
