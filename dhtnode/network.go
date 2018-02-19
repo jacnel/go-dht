@@ -23,7 +23,7 @@ type Network struct {
 func (network *Network) Init(port int, configFilepath string) {
 	network.getNetworkConfig(configFilepath)
 	network.setMyAddr(port)
-	network.setNodeConns()
+	network.nodeConns = make([]*net.Conn, len(network.id2ipMap) - 1)
 }
 
 func (network *Network) Listen() {
@@ -65,18 +65,35 @@ func (network *Network) Send(conn net.Conn, message string) {
 func (network *Network) LetsGoOffNoding(opcode, key, value int) (int, int) {
 	targetNode := network.hashKey(key)
 	targetAddr := network.id2ipMap[targetNode]
- 	conn, err := net.Dial("tcp", targetAddr)
-	for err != nil {
-		if strings.Compare(err.Error(), "dial tcp " + targetAddr + ": connect: can't assign requested address") == 0 {
-			conn, err = net.Dial("tcp", targetAddr)
-			continue
-		} else {
-			check(err)
-		}
-		fmt.Println("Recovered from socket assignment error")
+ 	//conn, err := net.Dial("tcp", targetAddr)
+	//for err != nil {
+	//	if strings.Compare(err.Error(), "dial tcp " + targetAddr + ": connect: can't assign requested address") == 0 {
+	//		conn, err = net.Dial("tcp", targetAddr)
+	//		continue
+	//	} else {
+	//		check(err)
+	//	}
+	//	fmt.Println("Recovered from socket assignment error")
+	//}
+	//message := strconv.Itoa(opcode)+";"+strconv.Itoa(key)+";"+strconv.Itoa(value)
+	//_, err = conn.Write([]byte(message))
+	//check(err)
+	//data := make([]byte, 1024)
+	//n, err := conn.Read(data)
+	//if(err == io.EOF) {
+	//	return 0, 0
+	//} else {
+	//	check(err)
+	//}
+	//conn.Close()
+	if network.nodeConns[targetNode] == nil {
+		var err error
+		*(network.nodeConns[targetNode]), err = net.Dial("tcp", targetAddr)
+		check(err)
 	}
 	message := strconv.Itoa(opcode)+";"+strconv.Itoa(key)+";"+strconv.Itoa(value)
-	_, err = conn.Write([]byte(message))
+	conn := *(network.nodeConns[targetNode])
+	_, err := conn.Write([]byte(message))
 	check(err)
 	data := make([]byte, 1024)
 	n, err := conn.Read(data)
@@ -85,17 +102,6 @@ func (network *Network) LetsGoOffNoding(opcode, key, value int) (int, int) {
 	} else {
 		check(err)
 	}
-	conn.Close()
-	//message := strconv.Itoa(opcode)+";"+strconv.Itoa(key)+";"+strconv.Itoa(value)
-	//_, err := network.nodeConns[targetNode].Write([]byte(message))
-	//check(err)
-	//data := make([]byte, 1024)
-	//n, err := network.nodeConns[targetNode].Read(data)
-	//if(err == io.EOF) {
-	//	return 0, 0
-	//} else {
-	//	check(err)
-	//}
 	return parseNodeMessage(string(data[:n]))
 }
 func (network *Network) Close(conn net.Conn) {
@@ -157,18 +163,6 @@ func (network *Network) getMessage(conn net.Conn) string {
 		return "-1;0;0"
 	}
 	return string(data[:n])
-}
-func (network *Network) setNodeConns() {
-	network.nodeConns = make([]*net.Conn, len(network.id2ipMap) - 1)
-	for _, addr := range network.id2ipMap {
-		if strings.Compare(addr, network.myAddress) != 0 {
-			//var err error
-			fmt.Println("connecting to... ", addr)
-			//conn, err := net.Dial("tcp", addr)
-			//network.nodeConns[i] = &conn
-			//check(err)
-		}
-	}
 }
 func parseClientMessage(s string) (int, int, int) {
 	tokens := strings.Split(s, ";")
