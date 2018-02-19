@@ -15,10 +15,10 @@ type DHTClient struct {
 func (client *DHTClient) Init(addr string) {
 	client.targetAddr = addr
 	conn, err := net.Dial("tcp", client.targetAddr)
-	client.dhtConn = &conn
 	if(err != nil) {
 		panic("Could not connect to " + client.targetAddr)
 	}
+	client.dhtConn = &conn
 }
 
 func (client *DHTClient) Get(key int) (int, int) {
@@ -37,12 +37,12 @@ func (client *DHTClient) Get(key int) (int, int) {
 }
 
 func (client *DHTClient) Put(key, value int) (int, int) {
-	n, err := (*client.dhtConn).Write([]byte("2;"+strconv.Itoa(key)+";"+strconv.Itoa(value)+"\n"))
+	_, err := (*client.dhtConn).Write([]byte("2;"+strconv.Itoa(key)+";\n"))
 	if err != nil {
 		panic(err)
 	}
 	data := make([]byte, 1024)
-	n, err = (*client.dhtConn).Read(data)
+	n, err := (*client.dhtConn).Read(data)
 	if err != nil {
 		return 0, 0
 	}

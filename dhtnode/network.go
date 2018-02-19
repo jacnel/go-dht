@@ -78,7 +78,7 @@ func (network *Network) LetsGoOffNoding(opcode, key, value int) (int, int) {
 	message := strconv.Itoa(opcode)+";"+strconv.Itoa(key)+";"+strconv.Itoa(value)
 	_, err = conn.Write([]byte(message))
 	check(err)
-	data := make([]byte, 1024)
+	data := make([]byte, 10)
 	n, err := conn.Read(data)
 	if(err == io.EOF) {
 		return 0, 0
@@ -86,22 +86,6 @@ func (network *Network) LetsGoOffNoding(opcode, key, value int) (int, int) {
 		check(err)
 	}
 	conn.Close()
-	//if network.nodeConns[targetNode] == nil {
-	//	var err error
-	//	network.nodeConns[targetNode], err = net.Dial("tcp", targetAddr)
-	//	check(err)
-	//}
-	//message := strconv.Itoa(opcode)+";"+strconv.Itoa(key)+";"+strconv.Itoa(value)
-	//conn := network.nodeConns[targetNode]
-	//_, err := conn.Write([]byte(message))
-	//check(err)
-	//data := make([]byte, 1024)
-	//n, err := conn.Read(data)
-	//if(err == io.EOF) {
-	//	return 0, 0
-	//} else {
-	//	check(err)
-	//}
 	return parseNodeMessage(string(data[:n]))
 }
 func (network *Network) Close(conn net.Conn) {
@@ -153,7 +137,7 @@ func loadConfig(config_file string) map[string][]string {
 	return json_obj
 }
 func (network *Network) getMessage(conn net.Conn) string {
-	data := make([]byte, 1024)
+	data := make([]byte, 10)
 	var(
 		err error
 		n int

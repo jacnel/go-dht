@@ -159,7 +159,7 @@ func getTotalSize() int {
 			break
 		}
 		totalSize += c.Size()
-		c.Close()
 	}
+	c.Close()
 	return totalSize
 }
