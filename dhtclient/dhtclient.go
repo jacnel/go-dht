@@ -26,7 +26,7 @@ func (client *DHTClient) Get(key int) (int, int) {
 	if err != nil {
 		panic(err)
 	}
-	data := make([]byte, 10)
+	data := make([]byte, 100)
 	n, err := (*client.dhtConn).Read(data)
 	if err != nil {
 		if err == io.EOF {
@@ -41,7 +41,7 @@ func (client *DHTClient) Put(key, value int) (int, int) {
 	if err != nil {
 		panic(err)
 	}
-	data := make([]byte, 10)
+	data := make([]byte, 100)
 	n, err := (*client.dhtConn).Read(data)
 	if err != nil {
 		return 0, 0
@@ -54,7 +54,7 @@ func (client *DHTClient) Size() int {
 	if err != nil {
 		panic(err)
 	}
-	data := make([]byte, 10)
+	data := make([]byte, 100)
 	n, err = (*client.dhtConn).Read(data)
 	if err != nil {
 		if err == io.EOF {
