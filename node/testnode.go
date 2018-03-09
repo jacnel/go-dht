@@ -149,16 +149,16 @@ func getTotalSize() int {
 	for i := 0; i < 4; i++ {
 		switch i {
 		case 0:
-			c.Init("54.208.29.162:8403")
+			c.Init("107.23.129.34:8403")
 			break
 		case 1:
-			c.Init("54.211.127.45:8403")
+			c.Init("54.173.150.90:8403")
 			break
 		case 2:
-			c.Init("75.101.226.165:8403")
+			c.Init("54.87.229.45:8403")
 			break
 		case 3:
-			c.Init("34.233.120.248:8403")
+			c.Init("34.228.83.193:8403")
 			break
 		}
 		totalSize += c.Size()
