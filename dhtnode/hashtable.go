@@ -10,6 +10,7 @@ const numLocks = keyRange
 type HashTable struct{
 	data []int
 	lock sync.Mutex
+	// look into Actor model
 	locks []sync.Mutex
 }
 
