@@ -16,6 +16,7 @@ type Network struct {
 	ip2idMap  map[string]int
 	id2ipMap  map[int]string
 	listener  net.Listener
+	conns     map[int]net.Conn
 }
 
 // public functions
@@ -63,18 +64,22 @@ func (network *Network) Send(conn net.Conn, message string) {
 func (network *Network) LetsGoOffNoding(opcode, key, value int) (int, int) {
 	targetNode := network.hashKey(key)
 	targetAddr := network.id2ipMap[targetNode]
- 	conn, err := net.Dial("tcp", targetAddr)
-	for err != nil {
-		if strings.Compare(err.Error(), "dial tcp " + targetAddr + ": connect: can't assign requested address") == 0 {
-			conn, err = net.Dial("tcp", targetAddr)
-			continue
-		} else {
-			check(err)
+	if network.conns[targetNode] == nil { // if the connection has not been established yet...
+		conn, err := net.Dial("tcp", targetAddr)
+		for err != nil {
+			if strings.Compare(err.Error(), "dial tcp " + targetAddr + ": connect: can't assign requested address") == 0 {
+				conn, err = net.Dial("tcp", targetAddr)
+				continue
+			} else {
+				check(err)
+			}
+			fmt.Println("Recovered from socket assignment error")
 		}
-		fmt.Println("Recovered from socket assignment error")
+		network.conns[targetNode] = conn
 	}
+	conn := network.conns[targetNode]
 	message := strconv.Itoa(opcode)+";"+strconv.Itoa(key)+";"+strconv.Itoa(value)
-	_, err = conn.Write([]byte(message))
+	_, err := conn.Write([]byte(message))
 	check(err)
 	data := make([]byte, 1024)
 	n, err := conn.Read(data)
@@ -99,6 +104,7 @@ func (network *Network) getNetworkConfig(configFilepath string) {
 		network.ip2idMap[ipString] = nodeID
 		network.id2ipMap[nodeID] = ipString
 	}
+	network.conns = make(map[int]net.Conn)
 }
 func (network *Network) setMyAddr(port int) {
 	ifaces, err := net.InterfaceAddrs()

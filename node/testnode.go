@@ -7,30 +7,34 @@ import (
 	"os"
 	"strconv"
 	"time"
+	"io/ioutil"
+	"encoding/json"
 )
 
-func doRandomWork(i, targetNode, numOps, keyRange int, ops, puts *[]int, runtimes *[]float64, done chan bool) {
-	c := dhtclient.DHTClient{}
-	switch targetNode % 4 {
-	case -1:
-		c.Init("127.0.0.1:8403")
-		break
-	case 0:
-		c.Init("107.23.129.34:8403")
-		break
-	case 1:
-		c.Init("54.173.150.90:8403")
-		break
-	case 2:
-		c.Init("54.87.229.45:8403")
-		break
-	case 3:
-		c.Init("34.228.83.193:8403")
-		break
-	default:
-		return
+func check(e error) {
+	if e != nil {
+		panic(e)
 	}
+}
+
+func getNetworkMap(config_file string) map[string][]string {
+	data, err := ioutil.ReadFile(config_file)
+	check(err)
+	var json_obj map[string][]string
+	err = json.Unmarshal(data, &json_obj)
+	check(err)
+	return json_obj
+}
+
+func doRandomWork(netmap map[string][]string, i, targetNode, numOps, keyRange int, ops, puts *[]int, runtimes *[]float64, done chan bool) {
+	c := dhtclient.DHTClient{}
+
 	fmt.Println("Target node ->", targetNode % 4)
+	if i < 0 {
+		c.Init("127.0.0.1:8403")
+	} else {
+		c.Init(netmap["network"][targetNode])
+	}
 	myPuts := 0
 	myOps := 0
 	var nanos int64
@@ -82,13 +86,16 @@ func main() {
 	puts := make([]int, numClients)
 	done := make(chan bool, numClients)
 
+	// Get network
+	netmap := getNetworkMap("./node/config.json")
+
 	// Start clients
 	fmt.Println("Spawning new clients")
 	for i := 0; i < numClients; i++ {
 		if targetNode >= 0 {
-			go doRandomWork(i, targetNode, numOps, keyRange, &ops, &puts, &runtimes, done)
+			go doRandomWork(netmap, i, targetNode, numOps, keyRange, &ops, &puts, &runtimes, done)
 		} else {
-			go doRandomWork(i, i, numOps, keyRange, &ops, &puts, &runtimes, done)
+			go doRandomWork(netmap, i, i, numOps, keyRange, &ops, &puts, &runtimes, done)
 		}
 	}
 	// Wait for go routines to finish
